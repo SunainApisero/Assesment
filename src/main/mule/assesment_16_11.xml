@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="14db7584-7171-4e92-a7a1-dce7bf55de5b" >
 		<http:listener-connection host="0.0.0.0" port="8081" />
 	</http:listener-config>
@@ -14,27 +15,16 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 	</salesforce:sfdc-config>
 	<flow name="Step_1_Flow" doc:id="4b4248c4-d9e3-4134-8ceb-547aed87619c" >
 		<http:listener doc:name="Listener" doc:id="e0e20546-bd75-4586-88eb-5a7996d00293" path="/set_info" config-ref="HTTP_Listener_config" allowedMethods="GET"/>
-		<salesforce:create type="Account" doc:name="Create" doc:id="06924721-5c27-4594-b78a-96530c7ae650" config-ref="Salesforce_Config">
-			<salesforce:records ><![CDATA[#[[
+		<ee:transform doc:name="Transform Message" doc:id="275bafa9-672a-4815-bbdb-bbbae6ce2042" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
 {
-"BillingAddress": {
-"country": null,
-"city": "Mountain View",
-"countryCode": null,
-"street": "345 Shoreline Park Mountain View, CA 94043 USA",
-"latitude": null,
-"postalCode": null,
-"geocodeAccuracy": null,
-"stateCode": null,
-"state": "CA",
-"longitude": null
-},
-"Phone": "(650) 867-3450",
-"Id": 1023,
-"type": "Account",
-"Name": "GenePoint"
-},
-]]]]></salesforce:records>
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:create type="Account" doc:name="Create" doc:id="06924721-5c27-4594-b78a-96530c7ae650" config-ref="Salesforce_Config">
 		</salesforce:create>
 		<logger level="INFO" doc:name="Logger" doc:id="cc80d194-2b83-46c6-b96c-10d01e75487b" />
 	</flow>
@@ -56,7 +46,8 @@ payload]]></ee:set-payload>
 		<http:listener doc:name="Listener" doc:id="4f36bc27-0574-4066-83f6-ff8fa8b8e54a" config-ref="HTTP_Listener_config" path="/update" allowedMethods="GET"/>
 		<logger level="INFO" doc:name="Logger" doc:id="b84f5a26-80a4-4758-be20-45a2a02edf10" />
 		<salesforce:update type="Account" doc:name="Update" doc:id="cee297ed-f166-480e-a83d-a820dd892040" config-ref="Salesforce_Config">
-			<salesforce:records ><![CDATA[#[{
+			<salesforce:records ><![CDATA[#[[
+	{
 "BillingAddress": {
 "country": null,
 "city": "Mountain View",
@@ -73,7 +64,19 @@ payload]]></ee:set-payload>
 "Id": null,
 "type": "Account",
 "Name": "GenePoint"
-}]]]></salesforce:records>
+}]]]]></salesforce:records>
 		</salesforce:update>
+	</flow>
+	<flow name="Database_step1_Flow" doc:id="d397d166-38fb-4e09-85b8-9f5d0a05737c" >
+		<scheduler doc:name="Scheduler" doc:id="18a56cb2-333d-4792-af13-220a886b35d2" >
+			<scheduling-strategy >
+				<cron timeZone="IST" expression="0 00 24 ? * *"/>
+			</scheduling-strategy>
+		</scheduler>
+		<flow-ref doc:name="Flow Reference" doc:id="863cff2d-4bcb-47c9-8518-9797b0b40c86" name="step_2_Flow"/>
+		<logger level="INFO" doc:name="Logger" doc:id="7a0406bf-123e-4caf-a8ed-9100ea6a571a" />
+		<foreach doc:name="For Each" doc:id="dcf73e4e-cb7f-4e3b-ab8a-b6c2f0a80508" >
+			<db:insert doc:name="Insert" doc:id="52fbe882-c55a-4374-adbe-060edf2dd9a6" />
+		</foreach>
 	</flow>
 </mule>

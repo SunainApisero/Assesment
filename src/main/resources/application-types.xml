@@ -26,4 +26,14 @@ type customer = {|
 ]]></types:shape>
     </types:type>
   </types:catalog>
+  <types:enrichment select="#275bafa9-672a-4815-bbdb-bbbae6ce2042">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="customer"/>
+          <types:attributes type="customer"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
 </types:mule>
