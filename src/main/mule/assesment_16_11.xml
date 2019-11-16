@@ -13,6 +13,9 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="ded32dac-0243-4973-a857-49cddcb5519d" >
 		<salesforce:cached-basic-connection username="sunain.mittal@apisero.com" password="Sunain@123" securityToken="SxP8kxcDH5qrmaivCvHJG2iQT" />
 	</salesforce:sfdc-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="51338a09-97cf-4587-a94c-624d68624625" >
+		<db:my-sql-connection host=" db4free.net" port="3306" user="sunain" password="sunain123" database="assessmentsunain" />
+	</db:config>
 	<flow name="Step_1_Flow" doc:id="4b4248c4-d9e3-4134-8ceb-547aed87619c" >
 		<http:listener doc:name="Listener" doc:id="e0e20546-bd75-4586-88eb-5a7996d00293" path="/set_info" config-ref="HTTP_Listener_config" allowedMethods="GET"/>
 		<ee:transform doc:name="Transform Message" doc:id="275bafa9-672a-4815-bbdb-bbbae6ce2042" >
@@ -73,10 +76,21 @@ payload]]></ee:set-payload>
 				<cron timeZone="IST" expression="0 00 24 ? * *"/>
 			</scheduling-strategy>
 		</scheduler>
-		<flow-ref doc:name="Flow Reference" doc:id="863cff2d-4bcb-47c9-8518-9797b0b40c86" name="step_2_Flow"/>
+		<db:execute-ddl doc:name="truncate table" doc:id="897b2afb-6c24-446d-bdbf-eeb033566543" config-ref="Database_Config">
+			<db:sql>TRUNCATE TABLE customer;</db:sql>
+		</db:execute-ddl>
+		<flow-ref doc:name="get all customer info" doc:id="863cff2d-4bcb-47c9-8518-9797b0b40c86" name="step_2_Flow"/>
 		<logger level="INFO" doc:name="Logger" doc:id="7a0406bf-123e-4caf-a8ed-9100ea6a571a" />
 		<foreach doc:name="For Each" doc:id="dcf73e4e-cb7f-4e3b-ab8a-b6c2f0a80508" >
-			<db:insert doc:name="Insert" doc:id="52fbe882-c55a-4374-adbe-060edf2dd9a6" />
+			<db:insert doc:name="Insert salesfore customer info into database" doc:id="3aca1a69-b9aa-4e5f-8708-0af1b643af47" config-ref="Database_Config">
+				<db:sql >insert into customer values(:ID,:NA,:PN,:BS);</db:sql>
+				<db:input-parameters ><![CDATA[#[{
+'ID' : payload.Id,
+'NA' : payload.name,
+'PN' : payload.phone,
+'BS' : payload.BillingAddress.street,
+}]]]></db:input-parameters>
+			</db:insert>
 		</foreach>
 	</flow>
 </mule>
