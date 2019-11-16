@@ -1,5 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd"></mule>
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="14db7584-7171-4e92-a7a1-dce7bf55de5b" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="ded32dac-0243-4973-a857-49cddcb5519d" >
+		<salesforce:cached-basic-connection username="sunain.mittal@apisero.com" password="Sunain@123" securityToken="SxP8kxcDH5qrmaivCvHJG2iQT" />
+	</salesforce:sfdc-config>
+	<flow name="Step_1_Flow" doc:id="4b4248c4-d9e3-4134-8ceb-547aed87619c" >
+		<http:listener doc:name="Listener" doc:id="e0e20546-bd75-4586-88eb-5a7996d00293" path="/set_info" config-ref="HTTP_Listener_config" allowedMethods="GET"/>
+		<salesforce:create type="Account" doc:name="Create" doc:id="06924721-5c27-4594-b78a-96530c7ae650" config-ref="Salesforce_Config">
+			<salesforce:records ><![CDATA[#[[
+{
+"BillingAddress": {
+"country": null,
+"city": "Mountain View",
+"countryCode": null,
+"street": "345 Shoreline Park Mountain View, CA 94043 USA",
+"latitude": null,
+"postalCode": null,
+"geocodeAccuracy": null,
+"stateCode": null,
+"state": "CA",
+"longitude": null
+},
+"Phone": "(650) 867-3450",
+"Id": 1023,
+"type": "Account",
+"Name": "GenePoint"
+},
+]]]]></salesforce:records>
+		</salesforce:create>
+		<logger level="INFO" doc:name="Logger" doc:id="cc80d194-2b83-46c6-b96c-10d01e75487b" />
+	</flow>
+	<flow name="step_2_Flow" doc:id="9e727758-70e0-46a3-94e6-967aaacc8b48" >
+		<http:listener doc:name="Listener" doc:id="29462404-4036-4c8c-bf9d-ce6c82f7f6fd" config-ref="HTTP_Listener_config" path="/getAll" allowedMethods="GET"/>
+		<salesforce:query doc:name="Query" doc:id="473aace3-1502-44ef-ad7f-e951c17e7144" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query >SELECT Phone,Name,BillingAddress FROM Account</salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="Transform Message" doc:id="4225e088-f849-4039-8eee-b5d7c4eacc6c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="step_3_Flow" doc:id="d74ee818-835d-4733-ba9c-8c0dc0292672" >
+		<http:listener doc:name="Listener" doc:id="4f36bc27-0574-4066-83f6-ff8fa8b8e54a" config-ref="HTTP_Listener_config" path="/update" allowedMethods="GET"/>
+		<logger level="INFO" doc:name="Logger" doc:id="b84f5a26-80a4-4758-be20-45a2a02edf10" />
+		<salesforce:update type="Account" doc:name="Update" doc:id="cee297ed-f166-480e-a83d-a820dd892040" config-ref="Salesforce_Config">
+			<salesforce:records ><![CDATA[#[{
+"BillingAddress": {
+"country": null,
+"city": "Mountain View",
+"countryCode": null,
+"street": "345 Shoreline Park Mountain View, CA 94043 USA",
+"latitude": null,
+"postalCode": null,
+"geocodeAccuracy": null,
+"stateCode": null,
+"state": "CA",
+"longitude": null
+},
+"Phone": "(650) 867-3450",
+"Id": null,
+"type": "Account",
+"Name": "GenePoint"
+}]]]></salesforce:records>
+		</salesforce:update>
+	</flow>
+</mule>

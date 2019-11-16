@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="customer" format="json">
+      <types:shape format="weave" example="examples/customer.json"><![CDATA[%dw 2.0
+
+type customer = {|
+  BillingAddress: {|
+    country: Null, 
+    city: String, 
+    countryCode: Null, 
+    street: String, 
+    latitude: Null, 
+    postalCode: Null, 
+    geocodeAccuracy: Null, 
+    stateCode: Null, 
+    state: String, 
+    longitude: Null
+  |}, 
+  Phone: String, 
+  Id: Null, 
+  "type": String, 
+  Name: String
+|} {"example": "{\"BillingAddress\":{\"country\":null,\"city\":\"Mountain View\",\"countryCode\":null,\"street\":\"345 Shoreline Park Mountain View, CA 94043 USA\",\"latitude\":null,\"postalCode\":null,\"geocodeAccuracy\":null,\"stateCode\":null,\"state\":\"CA\",\"longitude\":null},\"Phone\":\"(650) 867-3450\",\"Id\":null,\"type\":\"Account\",\"Name\":\"GenePoint\"}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+</types:mule>

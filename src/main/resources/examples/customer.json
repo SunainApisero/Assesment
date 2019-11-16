@@ -1,0 +1,18 @@
+{
+"BillingAddress": {
+"country": null,
+"city": "Mountain View",
+"countryCode": null,
+"street": "345 Shoreline Park Mountain View, CA 94043 USA",
+"latitude": null,
+"postalCode": null,
+"geocodeAccuracy": null,
+"stateCode": null,
+"state": "CA",
+"longitude": null
+},
+"Phone": "(650) 867-3450",
+"Id": null,
+"type": "Account",
+"Name": "GenePoint"
+}
