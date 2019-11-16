@@ -48,27 +48,7 @@ payload]]></ee:set-payload>
 	<flow name="step_3_Flow" doc:id="d74ee818-835d-4733-ba9c-8c0dc0292672" >
 		<http:listener doc:name="Listener" doc:id="4f36bc27-0574-4066-83f6-ff8fa8b8e54a" config-ref="HTTP_Listener_config" path="/update" allowedMethods="GET"/>
 		<logger level="INFO" doc:name="Logger" doc:id="b84f5a26-80a4-4758-be20-45a2a02edf10" />
-		<salesforce:update type="Account" doc:name="Update" doc:id="cee297ed-f166-480e-a83d-a820dd892040" config-ref="Salesforce_Config">
-			<salesforce:records ><![CDATA[#[[
-	{
-"BillingAddress": {
-"country": null,
-"city": "Mountain View",
-"countryCode": null,
-"street": "345 Shoreline Park Mountain View, CA 94043 USA",
-"latitude": null,
-"postalCode": null,
-"geocodeAccuracy": null,
-"stateCode": null,
-"state": "CA",
-"longitude": null
-},
-"Phone": "(650) 867-3450",
-"Id": null,
-"type": "Account",
-"Name": "GenePoint"
-}]]]]></salesforce:records>
-		</salesforce:update>
+		<salesforce:upsert doc:name="Upsert" doc:id="0768fc3c-710c-4fcd-be6e-ae9370ca16f7" config-ref="Salesforce_Config" externalIdFieldName="Id" type="Account"/>
 	</flow>
 	<flow name="Database_step1_Flow" doc:id="d397d166-38fb-4e09-85b8-9f5d0a05737c" >
 		<scheduler doc:name="Scheduler" doc:id="18a56cb2-333d-4792-af13-220a886b35d2" >
