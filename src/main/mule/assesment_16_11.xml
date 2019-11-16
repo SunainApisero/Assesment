@@ -21,17 +21,19 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 		<set-variable value="#[attributes.queryParams.name]" doc:name="Set Name" doc:id="e3bc8efd-1887-4727-8f76-836ee1f09e53" variableName="name"/>
 		<set-variable value="#[attributes.queryParams.number]" doc:name="Set Number" doc:id="6962399e-0452-4155-a511-fb0f24f45a6c" variableName="number"/>
 		<set-variable value="#[attributes.queryParams.address]" doc:name="Set Address" doc:id="169595e5-d41d-4f14-92a9-5b9210d60734" variableName="address"/>
-		<ee:transform doc:name="Transform Message" doc:id="275bafa9-672a-4815-bbdb-bbbae6ce2042" >
+		<ee:transform doc:name="Transform to variable values" doc:id="275bafa9-672a-4815-bbdb-bbbae6ce2042" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
 {
+	"name": vars.name,
+	"Id": vars.Id,
+	"Phone": vars.phone,
+	"BillingAddress": vars.address
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<salesforce:create type="Account" doc:name="Create" doc:id="06924721-5c27-4594-b78a-96530c7ae650" config-ref="Salesforce_Config">
-		</salesforce:create>
 		<logger level="INFO" doc:name="Logger" doc:id="cc80d194-2b83-46c6-b96c-10d01e75487b" />
 	</flow>
 	<flow name="step_2_Flow" doc:id="9e727758-70e0-46a3-94e6-967aaacc8b48" >
@@ -61,6 +63,10 @@ payload]]></ee:set-payload>
 output application/java
 ---
 {
+	"name": vars.name,
+	"Id": vars.Id,
+	"Phone": vars.phone,
+	"BillingAddress": vars.address
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
